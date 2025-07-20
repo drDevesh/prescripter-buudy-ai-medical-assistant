@@ -1,14 +1,12 @@
 import React from 'react';
 import UploadForm from './components/UploadForm';
-import './App.css'; // Import the styles
+import './App.css';
 
 function App() {
   return (
     <div className="app-container">
-      <div className="header-bar">
-        <h1>Prescripter Buddy</h1>
-      </div>
-      <div className="content">
+      <header className="app-header">Medical Prescription Simplifier</header>
+      <div className="upload-section">
         <UploadForm />
       </div>
     </div>

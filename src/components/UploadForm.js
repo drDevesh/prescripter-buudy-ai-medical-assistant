@@ -1,69 +1,57 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import './UploadForm.css';
+import './Upload.css';
 
 const UploadForm = () => {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
+  const handleFileChange = (e) => {
     setFile(e.target.files[0]);
-    setMessage('');
+    setMessage('File selected: ' + e.target.files[0].name);
   };
 
   const handleUpload = async () => {
     if (!file) {
-      setMessage('❌ Please select a file first');
+      setMessage('❗ Please select a file before uploading.');
       return;
     }
 
-    setLoading(true);
+    setMessage('Uploading...');
 
     try {
-      const apiUrl = 'https://<YOUR_API_GATEWAY_ID>.execute-api.<region>.amazonaws.com/generate-presigned-url';
+      const formData = new FormData();
+      formData.append('file', file);
 
-      const response = await axios.post(apiUrl, {
-        fileName: file.name,
-        fileType: file.type
+      // Replace with your real backend endpoint
+      const response = await fetch('https://your-api-url/upload', {
+        method: 'POST',
+        body: formData,
       });
 
-      const { uploadUrl, fileUrl } = response.data;
+      const data = await response.json();
 
-      await axios.put(uploadUrl, file, {
-        headers: { 'Content-Type': file.type }
-      });
-
-      setMessage(`✅ File uploaded successfully!\n${fileUrl}`);
+      if (response.ok) {
+        setMessage('✅ Prescription simplified: ' + data.result);
+      } else {
+        setMessage('❌ Upload failed: ' + data.error);
+      }
     } catch (error) {
-      console.error('Upload failed:', error);
-      setMessage('❌ Upload failed. Please try again.');
-    } finally {
-      setLoading(false);
+      setMessage('❌ Upload failed: ' + error.message);
     }
   };
 
   return (
     <div className="upload-form">
-      <h2>📤 Upload Your Prescription</h2>
-
-      <label htmlFor="file-upload" className="custom-file-upload">
-        {file ? file.name : 'Choose File'}
-      </label>
+      <div className="title-left">Choose your Prescription file and click upload</div>
       <input
-        id="file-upload"
         type="file"
-        accept=".png,.jpg,.jpeg,.pdf"
-        onChange={handleChange}
+        className="file-input"
+        onChange={handleFileChange}
       />
-
-      <button className="upload-button" onClick={handleUpload} disabled={loading}>
-        {loading ? 'Uploading...' : 'Upload'}
+      <button className="upload-button" onClick={handleUpload}>
+        Upload
       </button>
-
-      {message && (
-        <p className="upload-message">{message}</p>
-      )}
+      <div className="message-box">{message}</div>
     </div>
   );
 };
