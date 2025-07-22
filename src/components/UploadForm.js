@@ -1,57 +1,61 @@
 import React, { useState } from 'react';
-import './Upload.css';
+import axios from 'axios';
+import './UploadForm.css';
 
 const UploadForm = () => {
-  const [file, setFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [message, setMessage] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-    setMessage('File selected: ' + e.target.files[0].name);
+    setSelectedFile(e.target.files[0]);
+    setMessage('');
   };
 
   const handleUpload = async () => {
-    if (!file) {
-      setMessage('❗ Please select a file before uploading.');
+    if (!selectedFile) {
+      setMessage('❌ Please select a file first.');
       return;
     }
 
-    setMessage('Uploading...');
+    setIsUploading(true);
+    setMessage('⏳ Uploading...');
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      // 1. Get the pre-signed URL from your Lambda API
+      const response = await axios.get(
+        'https://ep4d7t3ez3.execute-api.us-east-1.amazonaws.com/get-presigned-url'
+      );
 
-      // Replace with your real backend endpoint
-      const response = await fetch('https://your-api-url/upload', {
-        method: 'POST',
-        body: formData,
+      const { uploadURL, fileName } = response.data;
+
+      // 2. Upload the file to S3 using the pre-signed URL
+      await axios.put(uploadURL, selectedFile, {
+        headers: {
+          'Content-Type': selectedFile.type,
+        },
       });
 
-      const data = await response.json();
+      setMessage(`✅ File uploaded successfully!`);
+      console.log('Uploaded file:', fileName);
 
-      if (response.ok) {
-        setMessage('✅ Prescription simplified: ' + data.result);
-      } else {
-        setMessage('❌ Upload failed: ' + data.error);
-      }
+      // 👉 Save the fileName in local state or context if needed for next API call
     } catch (error) {
-      setMessage('❌ Upload failed: ' + error.message);
+      console.error('Upload error:', error);
+      setMessage('❌ Upload failed. See console for details.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
   return (
     <div className="upload-form">
-      <div className="title-left">Choose your Prescription file and click upload</div>
-      <input
-        type="file"
-        className="file-input"
-        onChange={handleFileChange}
-      />
-      <button className="upload-button" onClick={handleUpload}>
-        Upload
+      <h2>Upload Prescription</h2>
+      <input type="file" onChange={handleFileChange} />
+      <button onClick={handleUpload} disabled={isUploading}>
+        {isUploading ? 'Uploading...' : 'Upload'}
       </button>
-      <div className="message-box">{message}</div>
+      {message && <p className="message">{message}</p>}
     </div>
   );
 };
