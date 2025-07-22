@@ -5,10 +5,22 @@
   margin-top: 2rem;
 }
 
+/* Style for the file input */
 .upload-form input[type='file'] {
   margin-bottom: 1rem;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  width: 250px;
+  text-align: center;
 }
 
+/* You can hide the native file input and style a custom label if needed (optional) */
+
+/* Style for the upload button */
 .upload-form button {
   background-color: #007bff;
   color: white;
@@ -17,10 +29,16 @@
   border: none;
   cursor: pointer;
   border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.upload-form button:hover {
+  background-color: #0056b3;
 }
 
 .upload-form button:disabled {
-  background-color: #aaa;
+  background-color: #f00000;
+  cursor: not-allowed;
 }
 
 .message {
