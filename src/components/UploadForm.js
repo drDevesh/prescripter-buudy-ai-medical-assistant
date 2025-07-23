@@ -23,7 +23,11 @@ const UploadForm = () => {
 
     try {
       // 1. Get the pre-signed URL from your Lambda API
-      const response = await axios.get('https://w9q3xtsru7.execute-api.us-east-1.amazonaws.com/prod/get-presigned-url');
+      const response = await axios.post(
+  'https://w9q3xtsru7.execute-api.us-east-1.amazonaws.com/get-presigned-url',
+  formData
+);
+
 
       const { uploadURL, fileName } = response.data;
 
