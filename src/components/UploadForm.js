@@ -22,16 +22,20 @@ const UploadForm = () => {
     setMessage('⏳ Uploading...');
 
     try {
-      // 1. Get the pre-signed URL from your Lambda API
-      const response = await axios.post(
-  'https://w9q3xtsru7.execute-api.us-east-1.amazonaws.com/get-presigned-url',
-  formData
-);
+      // ✅ 1. Prepare form data for Lambda (you missed this part!)
+      const formData = {
+        filename: selectedFile.name
+      };
 
+      // ✅ 2. Get the pre-signed URL from Lambda
+      const response = await axios.post(
+        'https://w9q3xtsru7.execute-api.us-east-1.amazonaws.com/get-presigned-url',
+        formData
+      );
 
       const { uploadURL, fileName } = response.data;
 
-      // 2. Upload the file to S3 using the pre-signed URL
+      // ✅ 3. Upload the file to S3 using the pre-signed URL
       await axios.put(uploadURL, selectedFile, {
         headers: {
           'Content-Type': selectedFile.type,
@@ -41,7 +45,8 @@ const UploadForm = () => {
       setMessage(`✅ File uploaded successfully!`);
       console.log('Uploaded file:', fileName);
 
-      // 👉 Save the fileName in local state or context if needed for next API call
+      // ✅ You can store fileName in state/context for further API calls if needed
+
     } catch (error) {
       console.error('Upload error:', error);
       setMessage('❌ Upload failed. See console for details.');
